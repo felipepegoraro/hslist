@@ -6,7 +6,6 @@
 #include <string.h>
 #include "../types.h"
 
-
 void ui_window_add(HashTable *hs)
 {
   ui_clear_and_refresh();

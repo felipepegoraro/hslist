@@ -5,6 +5,7 @@
 #include "./pages/ui_add.h"
 #include "./pages/ui_list.h"
 #include "./pages/ui_search.h"
+#include "./pages/ui_remove.h"
 #include <ctype.h>
 
 void ui_clear_and_refresh(void)
@@ -31,7 +32,7 @@ void ui_start(HashTable *hs)
   switch (selected_menu)
   {
     case ADD_WIN: ui_window_add(hs); break;  
-    // case REMOVE_WIN:
+    case REMOVE_WIN: ui_window_remove(hs); break;
     case SEARCH_WIN: ui_window_search(hs); break;
     case LIST_WIN: ui_window_list(hs); break;
 

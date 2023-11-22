@@ -60,7 +60,7 @@ void ui_window_remove_helper(WINDOW *win, HashTable *hs)
 
           if (strlen(name) == 0)
           {
-            ui_clear_fields(form, (FORM**)fields);
+            ui_clear_fields(form, fields);
             mvprintw(10, 2, "Preencha o inputs nome");
             break;
           }
@@ -68,7 +68,7 @@ void ui_window_remove_helper(WINDOW *win, HashTable *hs)
           hs_delete(hs, strdup(name));
           mvprintw(10, 2, "Contato Removido!");
 
-          ui_clear_fields(form, (FORM**)fields);
+          ui_clear_fields(form, fields);
 
           refresh();
           break;

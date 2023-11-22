@@ -58,29 +58,37 @@ static Entry *hs_create_item(
 }
 
 
-static unsigned char *hs_hash(const void *key, size_t size)
+unsigned char *hs_hash(const void *key, size_t size)
 {
   unsigned char *hash = (unsigned char*) malloc(SHA256_DIGEST_LENGTH);
   SHA256((unsigned const char*) key, size, hash);
   return hash;
 }
 
-
-static void hs_free_hash(unsigned char* hash)
+void hs_free_hash(unsigned char* hash)
 {
   free(hash);
+}
+
+size_t hs_get_index(const void *key, size_t size, size_t hs_size)
+{
+  unsigned char *hash = hs_hash(key, size);
+  size_t ret = hash[0] % hs_size;
+  hs_free_hash(hash);
+  return ret;
 }
 
 
 void hs_insert(HashTable *hs, void *key, void *value)
 {
-  unsigned char *hash = hs_hash(key, hs->items_size.key_s);
-  size_t index = hash[0] % hs->size;
+  size_t index = hs_get_index(key, hs->items_size.key_s, hs->size);
 
   Entry *new = hs_create_item(
     hs->items_size.key_s, key,
     hs->items_size.value_s, value
   );
+
+  mvprintw(20, 3, "[%zu]->%s", index, (char*)key);
 
   if (hs->buckets[index] == NULL) {
     hs->buckets[index] = new;
@@ -92,41 +100,30 @@ void hs_insert(HashTable *hs, void *key, void *value)
     current->next = new;
   }
 
-  hs_free_hash(hash);
   hs->length++;
 }
 
 
 Entry *hs_search(const HashTable *hs, const void *key)
 {
-  unsigned char *hash = hs_hash(key, hs->items_size.key_s);
-  size_t index = hash[0] % hs->size;
-
+  size_t index = hs_get_index(key, hs->items_size.key_s, hs->size);
   Entry *current = hs->buckets[index];
-  // if (current == NULL){}  // erro
 
   while (current != NULL)
   {
     if (memcmp(current->key, key, hs->items_size.key_s) == 0)
-    {
-      // Chave encontrada, retorne um ponteiro para o Entry encontrado
-      hs_free_hash(hash);
       return current;
-    }
     current = current->next;
   }
 
-  hs_free_hash(hash);
-  return NULL; // Retorna NULL se a chave não for encontrada
+  return NULL;
 }
 
 
 void hs_delete(HashTable *hs, const void *key)
 {
   if (hs->length == 0) return;
-
-  unsigned char *hash = hs_hash(key, hs->items_size.key_s);
-  size_t index = hash[0] % hs->size;
+  size_t index = hs_get_index(key, hs->items_size.key_s, hs->size);
 
   Entry *current = hs->buckets[index];
   Entry *prev = NULL;
@@ -141,15 +138,12 @@ void hs_delete(HashTable *hs, const void *key)
       hs_free_item(current);
 
       hs->length--;
-      hs_free_hash(hash);
       return;
     }
 
     prev = current;
     current = current->next;
   }
-
-  hs_free_hash(hash);
 }
 
 void hs_map(

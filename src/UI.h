@@ -43,7 +43,7 @@ static const char *main_menu_options[] __attribute__((unused)) = {
   "adicionar", "remover", "buscar", "listar"
 };
 
-void ui_clear_fields(FORM *, FORM *[]);
+void ui_clear_fields(FORM *form, FIELD *fields[]);
 char *trim_whitespace(char *);
 
 #endif // !UI

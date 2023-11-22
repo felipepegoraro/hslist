@@ -5,6 +5,7 @@
 #include <form.h>
 #include <string.h>
 #include "../types.h"
+#include <stdlib.h>
 
 void ui_window_add(HashTable *hs)
 {
@@ -69,10 +70,14 @@ void ui_window_add_helper(WINDOW *win, HashTable *hs)
 
           if (strlen(nome) == 0 || strlen(endereco) == 0 || strlen(telefone) == 0)
           {
-            ui_clear_fields(form, (FORM**)fields);
+            ui_clear_fields(form, fields);
             mvprintw(10, 2, "Preencha todos inputs...");
             break;
           }
+
+          mvprintw(12, 2, "Nome: %s", nome);
+          mvprintw(13, 2, "Endereco: %s", endereco);
+          mvprintw(14, 2, "Telefone: %s", telefone);
 
           Contact new_contact = {
             strdup(nome),
@@ -83,7 +88,10 @@ void ui_window_add_helper(WINDOW *win, HashTable *hs)
           hs_insert(hs, (void*) new_contact.name, (Contact*)&new_contact);
           mvprintw(10, 2, "Contato Adicionado!");
 
-          ui_clear_fields(form, (FORM**)fields);
+          ui_clear_fields(form, fields);
+          free((void*)new_contact.name);
+          free((void*)new_contact.address);
+          free((void*)new_contact.phone);
 
           refresh();
           break;

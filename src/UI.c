@@ -135,11 +135,11 @@ void ui_print_logo(WINDOW *win, int height, int width)
   }
 }
 
-void ui_clear_fields(FORM *form, FORM *fields[])
+void ui_clear_fields(FORM *form, FIELD *fields[])
 {
-  for (int i=0; fields[i] != NULL; ++i)
+  for (int i = 0; fields[i] != NULL; ++i)
   {
-    form_driver(form, REQ_CLR_FIELD);
+    set_field_buffer(fields[i], 0, "");  // Limpar o buffer do campo
     form_driver(form, REQ_NEXT_FIELD);
   }
 }

@@ -71,7 +71,7 @@ void ui_window_search_helper(WINDOW *win, HashTable *hs)
           mvwprintw(win, 7, 2, "Usuário %s não encontrado.", name);
         }
 
-        ui_clear_fields(form, (FORM **)field);
+        ui_clear_fields(form, field);
         // wgetch(win);
         wrefresh(win);
 

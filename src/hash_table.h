@@ -3,17 +3,18 @@
 
 #include <stdio.h>
 #include <ncurses.h>
+#include <stdlib.h>
+#include <string.h>
 #include "./types.h"
 
 typedef struct entry {
-  void *key;
+  char *key;
   void *value;
   struct entry *next;
 } Entry;
 
 typedef struct hashtable {
   struct items_size {
-    size_t key_s;
     size_t value_s;
   } items_size;
 
@@ -22,12 +23,12 @@ typedef struct hashtable {
   Entry **buckets;
 } HashTable;
 
-HashTable *hs_create(size_t key_size, size_t value_size, size_t max_size);
+HashTable *hs_create(size_t value_size, size_t max_size);
 void hs_free(HashTable*);
 
-void  hs_insert(HashTable*, void *key, void *value);
-Entry *hs_search(const HashTable *hs, const void *key);
-void hs_delete(HashTable*, const void *key);
+void hs_insert(HashTable*, const char *key, void *value);
+Entry *hs_search(const HashTable *hs, const char *key);
+void hs_delete(HashTable*, const char *key);
 
 void hs_map(
   HashTable*,

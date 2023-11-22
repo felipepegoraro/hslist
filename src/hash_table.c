@@ -5,24 +5,21 @@
 #include "./types.h"
 #include "./hash_table.h"
 
-HashTable *hs_create(size_t key_size, size_t value_size, size_t max_size)
+HashTable *hs_create(size_t value_size, size_t max_size)
 {
   HashTable *hs  = (HashTable *)malloc(sizeof(HashTable));
   hs->size       = max_size;
   hs->length     = 0;
   hs->buckets    = (Entry **)calloc(max_size, sizeof(Entry *));
-  hs->items_size.key_s   = key_size;
   hs->items_size.value_s = value_size;
   return hs;
 }
-
 
 static void hs_free_item(Entry *en){
   free(en->key);
   free(en->value);
   free(en);
 }
-
 
 void hs_free(HashTable *hs){
   for (size_t i = 0; i < hs->size; ++i) {
@@ -38,16 +35,11 @@ void hs_free(HashTable *hs){
   free(hs);
 }
 
+static Entry *hs_create_item(const char *key, size_t value_size, void *value)
+{
+  Entry *ret = (Entry *)malloc(sizeof(Entry));
 
-
-static Entry *hs_create_item(
-  size_t key_size, void *key, 
-  size_t value_size, void *value
-){
-  Entry *ret = (Entry *) malloc(sizeof(Entry));
-
-  ret->key = malloc(key_size);
-  memcpy(ret->key, key, key_size);
+  ret->key = strdup(key);
 
   ret->value = malloc(value_size);
   memcpy(ret->value, value, value_size);
@@ -57,11 +49,10 @@ static Entry *hs_create_item(
   return ret;
 }
 
-
-unsigned char *hs_hash(const void *key, size_t size)
+unsigned char *hs_hash(const char *key)
 {
-  unsigned char *hash = (unsigned char*) malloc(SHA256_DIGEST_LENGTH);
-  SHA256((unsigned const char*) key, size, hash);
+  unsigned char *hash = (unsigned char*)malloc(SHA256_DIGEST_LENGTH);
+  SHA256((unsigned const char*)key, strlen(key), hash);
   return hash;
 }
 
@@ -70,25 +61,21 @@ void hs_free_hash(unsigned char* hash)
   free(hash);
 }
 
-size_t hs_get_index(const void *key, size_t size, size_t hs_size)
+size_t hs_get_index(const char *key, size_t hs_size)
 {
-  unsigned char *hash = hs_hash(key, size);
+  unsigned char *hash = hs_hash(key);
   size_t ret = hash[0] % hs_size;
   hs_free_hash(hash);
   return ret;
 }
 
-
-void hs_insert(HashTable *hs, void *key, void *value)
+void hs_insert(HashTable *hs, const char *key, void *value)
 {
-  size_t index = hs_get_index(key, hs->items_size.key_s, hs->size);
+  size_t index = hs_get_index(key, hs->size);
 
-  Entry *new = hs_create_item(
-    hs->items_size.key_s, key,
-    hs->items_size.value_s, value
-  );
+  Entry *new = hs_create_item(key, hs->items_size.value_s, value);
 
-  mvprintw(20, 3, "[%zu]->%s", index, (char*)key);
+  mvprintw(20, 2, "[%zu]", index);
 
   if (hs->buckets[index] == NULL) {
     hs->buckets[index] = new;
@@ -103,15 +90,14 @@ void hs_insert(HashTable *hs, void *key, void *value)
   hs->length++;
 }
 
-
-Entry *hs_search(const HashTable *hs, const void *key)
+Entry *hs_search(const HashTable *hs, const char *key)
 {
-  size_t index = hs_get_index(key, hs->items_size.key_s, hs->size);
+  size_t index = hs_get_index(key, hs->size);
   Entry *current = hs->buckets[index];
 
   while (current != NULL)
   {
-    if (memcmp(current->key, key, hs->items_size.key_s) == 0)
+    if (strcmp(current->key, key) == 0)
       return current;
     current = current->next;
   }
@@ -119,18 +105,17 @@ Entry *hs_search(const HashTable *hs, const void *key)
   return NULL;
 }
 
-
-void hs_delete(HashTable *hs, const void *key)
+void hs_delete(HashTable *hs, const char *key)
 {
   if (hs->length == 0) return;
-  size_t index = hs_get_index(key, hs->items_size.key_s, hs->size);
+  size_t index = hs_get_index(key, hs->size);
 
   Entry *current = hs->buckets[index];
   Entry *prev = NULL;
 
   while (current != NULL)
   {
-    if (memcmp(current->key, key, hs->items_size.key_s) == 0)
+    if (strcmp(current->key, key) == 0)
     {
       if (prev == NULL) hs->buckets[index] = current->next;
       else prev->next = current->next;

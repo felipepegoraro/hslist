@@ -65,7 +65,7 @@ int main(void)
     {"Ryan Clark", "147 Fir Rd", "555-6543"}
   };
 
-  HashTable *hs = hs_create(sizeof(char)*MAX_KEY_SIZE, sizeof(struct contact), 1024);
+  HashTable *hs = hs_create(sizeof(struct contact), 1024);
   size_t cts_len = sizeof(cts) / sizeof(cts[0]);
 
   for (size_t i=0; i < cts_len; i++)

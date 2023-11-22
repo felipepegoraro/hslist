@@ -105,9 +105,9 @@ Entry *hs_search(const HashTable *hs, const char *key)
   return NULL;
 }
 
-void hs_delete(HashTable *hs, const char *key)
+bool hs_delete(HashTable *hs, const char *key)
 {
-  if (hs->length == 0) return;
+  if (hs->length == 0) return false;
   size_t index = hs_get_index(key, hs->size);
 
   Entry *current = hs->buckets[index];
@@ -123,12 +123,14 @@ void hs_delete(HashTable *hs, const char *key)
       hs_free_item(current);
 
       hs->length--;
-      return;
+      return true;
     }
 
     prev = current;
     current = current->next;
   }
+
+  return false;
 }
 
 void hs_map(

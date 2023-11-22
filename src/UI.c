@@ -7,6 +7,7 @@
 #include "./pages/ui_search.h"
 #include "./pages/ui_remove.h"
 #include <ctype.h>
+#include <unistd.h>
 
 void ui_clear_and_refresh(void)
 {
@@ -35,6 +36,10 @@ void ui_start(HashTable *hs)
     case REMOVE_WIN: ui_window_remove(hs); break;
     case SEARCH_WIN: ui_window_search(hs); break;
     case LIST_WIN: ui_window_list(hs); break;
+    case -1: 
+      printf("\nPrograma finalizado com sucesso.\n");
+      endwin();
+      return;
 
     default: break;
   }
@@ -84,6 +89,12 @@ int ui_menu_select(void)
       case 52:
         highlight = selected-49;
         break;
+
+      case 'q':
+        clear();
+        // mvprintw(height/2, width/2-9, "Saindo...");
+        refresh();
+        return -1;
 
       case 10:
         endwin();

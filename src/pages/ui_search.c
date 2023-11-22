@@ -13,8 +13,6 @@ void ui_window_search(HashTable *hs)
   current_window = searchWin;
   box(searchWin, 0, 0);
 
-  mvwprintw(searchWin, 2, 2, "Buscar Contato");
-
   ui_window_search_helper(searchWin, hs);
 
   wrefresh(searchWin);
@@ -60,16 +58,23 @@ void ui_window_search_helper(WINDOW *win, HashTable *hs)
         form_driver(form, REQ_NEXT_FIELD);
         strcpy(name, trim_whitespace(field_buffer(field[0], 0)));
 
+        if (strlen(name) == 0){
+          mvprintw(2, 17, "[Preencha o campo contato!]");
+        }
+
         Entry *result = hs_search(hs, name);
 
         werase(win);
 
-        if (result != NULL) {
+        if (result != NULL){
           Contact *found_contact = (Contact *)result->value;
-          mvprintw(5, 2, "Usuário encontrado: %s (%s), %s", found_contact->name, found_contact->address, found_contact->phone);
-        } else {
-          mvwprintw(win, 7, 2, "Usuário %s não encontrado.", name);
+          mvprintw(7, 2, "Usuário encontrado: %s (%s), %s",
+              found_contact->name,
+              found_contact->address,
+              found_contact->phone);
+          wclrtoeol(stdscr);
         }
+        else mvwprintw(win, 7, 2, "Usuário %s não encontrado.", name);
 
         ui_clear_fields(form, field);
         // wgetch(win);

@@ -28,7 +28,7 @@ void hs_free(HashTable*);
 
 void hs_insert(HashTable*, const char *key, void *value);
 Entry *hs_search(const HashTable *hs, const char *key);
-void hs_delete(HashTable*, const char *key);
+bool hs_delete(HashTable*, const char *key);
 
 void hs_map(
   HashTable*,

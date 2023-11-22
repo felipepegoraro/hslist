@@ -12,8 +12,6 @@ void ui_window_remove(HashTable *hs)
   current_window = removerwin;
   box(removerwin, 0, 0);
 
-  mvwprintw(removerwin, 2, 2, "Remover Contatos");
-
   curs_set(1);
   ui_window_remove_helper(removerwin, hs);
   curs_set(0);
@@ -25,7 +23,7 @@ void ui_window_remove(HashTable *hs)
 void ui_window_remove_helper(WINDOW *win, HashTable *hs)
 {
   FIELD *fields[2];
-  fields[0] = new_field(1, MAX_NAME_SIZE, 2, 2, 0, 0);
+  fields[0] = new_field(1, MAX_NAME_SIZE, 5, 2, 0, 0);
   fields[1] = NULL;
 
   set_field_back(fields[0], A_UNDERLINE); field_opts_off(fields[0], O_AUTOSKIP);
@@ -37,7 +35,9 @@ void ui_window_remove_helper(WINDOW *win, HashTable *hs)
   char name[MAX_NAME_SIZE];
 
   int ch;
-  mvprintw(2, 2, "Pressione F2 para voltar");
+  mvprintw(2, 2, "Remover Contatos");
+  mvprintw(3, 2, "Pressione F2 para voltar");
+  move(5, 2);
 
   while ((ch = getch()) != KEY_F(2))
   {
@@ -52,35 +52,40 @@ void ui_window_remove_helper(WINDOW *win, HashTable *hs)
         refresh();
         return;
 
-        case 10:
-          form_driver(form, REQ_NEXT_FIELD);
-          form_driver(form, REQ_PREV_FIELD);
+      case 10:
+        form_driver(form, REQ_NEXT_FIELD);
+        form_driver(form, REQ_PREV_FIELD);
 
-          strcpy(name, trim_whitespace(field_buffer(fields[0], 0)));
+        strcpy(name, trim_whitespace(field_buffer(fields[0], 0)));
 
-          if (strlen(name) == 0)
-          {
-            ui_clear_fields(form, fields);
-            mvprintw(10, 2, "Preencha o inputs nome");
-            break;
-          }
-
-          hs_delete(hs, strdup(name));
-          mvprintw(10, 2, "Contato Removido!");
-
+        if (strlen(name) == 0)
+        {
           ui_clear_fields(form, fields);
-
+          mvprintw(2, 19, "[Preencha o inputs nome]");
+          move(5, 2);
           refresh();
           break;
+        }
+
+        mvprintw(7, 2, hs_delete(hs, strdup(name))
+          ? "Contato Removido.      "
+          : "Contato nao encontrado!");
+
+        ui_clear_fields(form, fields);
+
+        refresh();
+        move(5, 2);
+        refresh();
+        break;
 
       case KEY_DOWN:
-          form_driver(form, REQ_NEXT_FIELD);
-          form_driver(form, REQ_END_LINE);
-          break;
+        form_driver(form, REQ_NEXT_FIELD);
+        form_driver(form, REQ_END_LINE);
+        break;
       case KEY_UP:
-          form_driver(form, REQ_PREV_FIELD);
-          form_driver(form, REQ_END_LINE);
-          break;
+        form_driver(form, REQ_PREV_FIELD);
+        form_driver(form, REQ_END_LINE);
+        break;
       default:
           form_driver(form, ch);
           break;

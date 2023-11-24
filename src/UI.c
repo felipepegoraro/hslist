@@ -28,14 +28,18 @@ void ui_start(HashTable *hs)
 
   getmaxyx(stdscr, height, width);
 
-
   int selected_menu = ui_menu_select();
+
   switch (selected_menu)
   {
     case ADD_WIN: ui_window_add(hs); break;  
     case REMOVE_WIN: ui_window_remove(hs); break;
     case SEARCH_WIN: ui_window_search(hs); break;
     case LIST_WIN: ui_window_list(hs); break;
+
+    // sai do programa com 'q' ou C-d,
+    // volta para o main, desalocando memória corretamente)
+    // obs: C-c é capturado no main.
     case -1: 
       printf("\nPrograma finalizado com sucesso.\n");
       endwin();
@@ -83,29 +87,31 @@ int ui_menu_select(void)
       case 'A': highlight = (highlight == 0) ? 3 : highlight - 1; break;
       case 'B': highlight = (highlight == 3) ? 0 : highlight + 1; break;
 
-      case 49:
-      case 50:
-      case 51:
-      case 52:
-        highlight = selected-49;
-        break;
+      case 49: // 1
+      case 50: // 2
+      case 51: // 3
+      case 52: // 4
+          highlight = selected-49;
+          break;
 
+       // C-d, quit
+      case   4:
       case 'q':
-        clear();
-        // mvprintw(height/2, width/2-9, "Saindo...");
-        refresh();
-        return -1;
+          clear();
+          refresh();
+          return -1;
 
+      // return (enter)
       case 10:
-        endwin();
+          endwin();
 
-        switch (highlight)
-        {
-          case 0:  return ADD_WIN;
-          case 1:  return REMOVE_WIN;
-          case 2:  return SEARCH_WIN;
-          case 3:  return LIST_WIN;
-        }
+          switch (highlight)
+          {
+            case 0:  return ADD_WIN;
+            case 1:  return REMOVE_WIN;
+            case 2:  return SEARCH_WIN;
+            case 3:  return LIST_WIN;
+          }
 
       wrefresh(main_window);
     }
@@ -164,4 +170,33 @@ char *trim_whitespace(char *str)
   while (end > str && isspace((unsigned char)*end)) end--;
   end[1] = '\0';
   return str;
+}
+
+void ui_clean_and_free_forms(WINDOW *win, FORM *form, FIELD *fields[], size_t num_of_field)
+{
+  unpost_form(form);
+  free_form(form);
+
+  for (size_t i=0; i<num_of_field; ++i)
+    free_field(fields[i]);
+
+  delwin(win);
+  refresh();
+
+  return;
+}
+
+
+void to_csv_format(char *str)
+{
+  if (str != NULL)
+  for (size_t i=0; str[i] != '\0'; ++i)
+    if (isspace(str[i])) str[i]='_';
+}
+
+void from_csv_format(char *str)
+{
+  if (str != NULL)
+  for (size_t i=0; str[i] != '\0'; ++i)
+    if (str[i] == '_') str[i]=' ';
 }

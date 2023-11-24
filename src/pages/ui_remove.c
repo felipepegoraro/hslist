@@ -22,7 +22,8 @@ void ui_window_remove(HashTable *hs)
 
 void ui_window_remove_helper(WINDOW *win, HashTable *hs)
 {
-  FIELD *fields[2];
+  size_t num_of_fields = 2;
+  FIELD *fields[num_of_fields];
   fields[0] = new_field(1, MAX_NAME_SIZE, 5, 2, 0, 0);
   fields[1] = NULL;
 
@@ -44,12 +45,7 @@ void ui_window_remove_helper(WINDOW *win, HashTable *hs)
     switch (ch)
     {
       case KEY_F(2):
-        unpost_form(form);
-        free_form(form);
-        free_field(fields[0]);
-        free_field(fields[1]);
-        delwin(win);
-        refresh();
+        ui_clean_and_free_forms(win, form, fields, num_of_fields-1);
         return;
 
       case 10:
@@ -92,11 +88,6 @@ void ui_window_remove_helper(WINDOW *win, HashTable *hs)
     }
   }
 
-  unpost_form(form);
-  free_form(form);
-  free_field(fields[0]);
-  free_field(fields[1]);
-  delwin(win);
-  refresh();
+  ui_clean_and_free_forms(win, form, fields, num_of_fields-1);
 }
 

@@ -23,14 +23,15 @@ void ui_window_search(HashTable *hs)
 
 void ui_window_search_helper(WINDOW *win, HashTable *hs)
 {
-  FIELD *field[2];
-  field[0] = new_field(1, MAX_NAME_SIZE + 1, 5, 2, 0, 0);
-  field[1] = NULL;
+  size_t num_of_fields = 2;
+  FIELD *fields[num_of_fields];
+  fields[0] = new_field(1, MAX_NAME_SIZE + 1, 5, 2, 0, 0);
+  fields[1] = NULL;
 
-  set_field_back(field[0], A_UNDERLINE);
-  field_opts_off(field[0], O_AUTOSKIP);
+  set_field_back(fields[0], A_UNDERLINE);
+  field_opts_off(fields[0], O_AUTOSKIP);
 
-  FORM *form = new_form(field);
+  FORM *form = new_form(fields);
   post_form(form);
   refresh();
 
@@ -39,6 +40,7 @@ void ui_window_search_helper(WINDOW *win, HashTable *hs)
 
   curs_set(1);
   move(5,2);
+
   do {
     mvprintw(2, 2, "Buscar Contato");
     mvprintw(3, 2, "Pressione F2 para voltar");
@@ -46,21 +48,16 @@ void ui_window_search_helper(WINDOW *win, HashTable *hs)
     switch (ch)
     {
       case KEY_F(2):
-        unpost_form(form);
-        free_form(form);
-        free_field(field[0]);
-        delwin(win);
-        refresh();
+        ui_clean_and_free_forms(win, form, fields, num_of_fields-1);
         return;
 
       case 10:
         form_driver(form, REQ_NEXT_FIELD);
         form_driver(form, REQ_NEXT_FIELD);
-        strcpy(name, trim_whitespace(field_buffer(field[0], 0)));
+        strcpy(name, trim_whitespace(field_buffer(fields[0], 0)));
 
-        if (strlen(name) == 0){
+        if (strlen(name) == 0)
           mvprintw(2, 17, "[Preencha o campo contato!]");
-        }
 
         Entry *result = hs_search(hs, name);
 
@@ -72,14 +69,13 @@ void ui_window_search_helper(WINDOW *win, HashTable *hs)
               found_contact->name,
               found_contact->address,
               found_contact->phone);
+          
           wclrtoeol(stdscr);
         }
         else mvwprintw(win, 7, 2, "Usuário %s não encontrado.", name);
 
-        ui_clear_fields(form, field);
-        // wgetch(win);
+        ui_clear_fields(form, fields);
         wrefresh(win);
-
         break;
 
       default:
@@ -90,9 +86,6 @@ void ui_window_search_helper(WINDOW *win, HashTable *hs)
 
   curs_set(0);
 
-  unpost_form(form);
-  free_form(form);
-  free_field(field[0]);
-  delwin(win);
+  ui_clean_and_free_forms(win, form, fields, num_of_fields-1);
   refresh();
 }

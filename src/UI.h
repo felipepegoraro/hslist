@@ -17,7 +17,7 @@ typedef struct point {
 void ui_clear_and_refresh(void);
 void ui_start(HashTable *);
 void ui_print_logo(WINDOW *win, int height, int width);
-
+void ui_clean_and_free_forms(WINDOW *win, FORM *form, FIELD *fields[], size_t num_of_field);
 
 #define    ADD_WIN 1
 #define REMOVE_WIN 2
@@ -45,5 +45,6 @@ static const char *main_menu_options[] __attribute__((unused)) = {
 
 void ui_clear_fields(FORM *form, FIELD *fields[]);
 char *trim_whitespace(char *);
+void format_(char *);
 
 #endif // !UI

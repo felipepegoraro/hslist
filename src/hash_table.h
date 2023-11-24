@@ -1,6 +1,10 @@
 #ifndef HASH
 #define HASH
 
+#ifndef MAX_HS_SIZE
+#define MAX_HS_SIZE 1024
+#endif
+
 #include <stdio.h>
 #include <ncurses.h>
 #include <stdlib.h>

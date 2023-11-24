@@ -25,10 +25,21 @@ void ui_window_add(HashTable *hs)
 
 void ui_window_add_helper(WINDOW *win, HashTable *hs)
 {
-  FIELD *fields[4];
-  fields[0] = new_field(1, MAX_NAME_SIZE, 5, 2, 0, 0);
-  fields[1] = new_field(1, MAX_ADDRESS_SIZE, 7, 2, 0, 0);
-  fields[2] = new_field(1, MAX_PHONE_SIZE, 9, 2, 0, 0);
+  size_t num_of_fields = 4;
+  FIELD *fields[num_of_fields];
+  const char *fields_name[] = {
+    "Nome: ",
+    "Endereço: ",
+    "Telefone: "
+  };
+
+  int pos_x = 2;
+  int pos_y = 5;
+  int start_cursor = pos_x+strlen(fields_name[0]);
+
+  fields[0] = new_field(1, MAX_NAME_SIZE, pos_y, start_cursor, 0, 0);
+  fields[1] = new_field(1, MAX_ADDRESS_SIZE, 2+pos_y, pos_x+strlen(fields_name[1]), 0, 0);
+  fields[2] = new_field(1, MAX_PHONE_SIZE, 4+pos_y, pos_x+strlen(fields_name[2]), 0, 0);
   fields[3] = NULL;
 
   set_field_back(fields[0], A_UNDERLINE);
@@ -45,22 +56,20 @@ void ui_window_add_helper(WINDOW *win, HashTable *hs)
   char nome[MAX_NAME_SIZE], endereco[MAX_ADDRESS_SIZE], telefone[MAX_PHONE_SIZE];
 
   int ch;
-  mvprintw(2, 2, "Adicionar Contatos");
-  mvprintw(3, 2, "Pressione F2 para voltar");
-  move(5, 2);
+  mvprintw(2, pos_x, "Adicionar Contatos");
+  mvprintw(3, pos_x, "Pressione F2 para voltar");
+
+  for (size_t i=0; i < 3; i++)
+    mvprintw(pos_y+i*2, pos_x, fields_name[i]);
+
+  move(pos_y, start_cursor);
 
   while ((ch = getch()) != KEY_F(2))
   {
     switch (ch)
     {
     case KEY_F(2):
-        unpost_form(form);
-        free_form(form);
-        free_field(fields[0]);
-        free_field(fields[1]);
-        free_field(fields[2]);
-        delwin(win);
-        refresh();
+        ui_clean_and_free_forms(win, form, fields, num_of_fields-1);
         return;
 
     case 10:
@@ -75,7 +84,7 @@ void ui_window_add_helper(WINDOW *win, HashTable *hs)
         {
           ui_clear_fields(form, fields);
           mvprintw(2, 21, "[Preencha todos inputs...]");
-          move(5, 2);
+          move(5, start_cursor);
           refresh();
           break;
         }
@@ -88,17 +97,14 @@ void ui_window_add_helper(WINDOW *win, HashTable *hs)
 
         hs_insert(hs, (char*)new_contact.name, &new_contact);
 
-        mvprintw(12, 2, "Contato Adicionado!");
-        mvprintw(14, 2, "| Nome: %s", nome);
-        mvprintw(15, 2, "| Endereco: %s", endereco);
-        mvprintw(16, 2, "| Telefone: %s", telefone);
+        mvprintw(12, pos_x, "Contato Adicionado!");
+        mvprintw(14, pos_x, "| Nome: %s", nome);
+        mvprintw(15, pos_x, "| Endereco: %s", endereco);
+        mvprintw(16, pos_x, "| Telefone: %s", telefone);
 
         ui_clear_fields(form, fields);
-        // free((char*)new_contact.name);
-        // free((char*)new_contact.address);
-        // free((char*)new_contact.phone);
 
-        move(5, 2);
+        move(5, start_cursor);
         refresh();
         break;
 
@@ -116,12 +122,6 @@ void ui_window_add_helper(WINDOW *win, HashTable *hs)
     }
   }
 
-  unpost_form(form);
-  free_form(form);
-  free_field(fields[0]);
-  free_field(fields[1]);
-  free_field(fields[2]);
-  delwin(win);
-  refresh();
+  ui_clean_and_free_forms(win, form, fields, num_of_fields-1);
 }
 

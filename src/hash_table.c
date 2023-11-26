@@ -33,9 +33,11 @@ HashTable *hs_create(size_t value_size, size_t max_size)
 }
 
 static void hs_free_item(Entry *en){
-  free(en->key);
-  free(en->value);
-  free(en);
+  if (en != NULL){
+    free(en->key);
+    free(en->value);
+    free(en);
+  }
 }
 
 void hs_free(HashTable *hs){

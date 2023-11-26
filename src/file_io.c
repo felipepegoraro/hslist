@@ -6,22 +6,21 @@
 
 bool io_if_error(FILE *file)
 {
-  bool ret = false;
+  bool ret = true;
 
   if (file == NULL){
     char msg[100];
     sprintf(msg, "nao foi possivel ler/abrir arquivo %s", CONTACT_LIST_FILENAME);
     perror(msg);
-    ret = true;
+    ret = false;
   }
 
   return ret;
 }
 
-FILE *io_open_file(const char *filename)
+FILE *io_open_file(const char *filename, const char mode[2])
 {
-  FILE *fp = fopen(filename, "r+");
-  io_if_error(fp);
+  FILE *fp = fopen(filename, mode);
   return fp;
 }
 
@@ -76,7 +75,7 @@ void io_read_from_csv(FILE *file, Contact *to, size_t max_contacts, int *count)
     *count = *count + 1;
   }
 
-  if (io_if_error(file)){
+  if (!io_if_error(file)){
     for (size_t i = 0; i < contact_count; i++){
       free((void *)to[i].name);
       free((void *)to[i].address);
@@ -110,7 +109,7 @@ void io_clean_file(FILE *file) {
       exit(EXIT_FAILURE);
     }
     file = fopen(CONTACT_LIST_FILENAME, "w");
-    if(io_if_error(file)){
+    if(!io_if_error(file)){
       mvprintw(10, 2, "erro ao abrir arquivo");
     }
   }

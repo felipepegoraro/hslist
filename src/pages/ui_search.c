@@ -15,9 +15,10 @@ void ui_window_search(HashTable *hs)
 
   ui_window_search_helper(searchWin, hs);
 
-  wrefresh(searchWin);
+  refresh();
   curs_set(1);
 
+  delwin(searchWin);
   ui_start(hs);
 }
 
@@ -36,10 +37,11 @@ void ui_window_search_helper(WINDOW *win, HashTable *hs)
   refresh();
 
   char name[MAX_NAME_SIZE];
-  int ch;
 
   curs_set(1);
   move(5,2);
+
+  int ch;
 
   do {
     mvprintw(2, 2, "Buscar Contato");
@@ -48,35 +50,36 @@ void ui_window_search_helper(WINDOW *win, HashTable *hs)
     switch (ch)
     {
       case KEY_F(2):
-        ui_clean_and_free_forms(win, form, fields, num_of_fields-1);
+        ui_clean_and_free_forms(win, form, fields, num_of_fields);
         return;
 
-      case 10:
-        form_driver(form, REQ_NEXT_FIELD);
-        form_driver(form, REQ_NEXT_FIELD);
-        strcpy(name, trim_whitespace(field_buffer(fields[0], 0)));
+    case 10:
+      form_driver(form, REQ_NEXT_FIELD);
+      strcpy(name, trim_whitespace(field_buffer(fields[0], 0)));
 
-        if (strlen(name) == 0)
-          mvprintw(2, 17, "[Preencha o campo contato!]");
+      if (strlen(name) == 0)
+        mvprintw(2, 17, "[Preencha o campo contato!]");
 
-        Entry *result = hs_search(hs, name);
+      Entry *result = hs_search(hs, name);
 
-        werase(win);
+      move(7, 0);
+      clrtoeol();
+      refresh();
 
-        if (result != NULL){
-          Contact *found_contact = (Contact *)result->value;
-          mvprintw(7, 2, "Usuário encontrado: %s (%s), %s",
-              found_contact->name,
-              found_contact->address,
-              found_contact->phone);
-          
-          wclrtoeol(stdscr);
-        }
-        else mvwprintw(win, 7, 2, "Usuário %s não encontrado.", name);
+      if (result != NULL)
+      {
+        Contact *found_contact = (Contact *)result->value;
+        mvprintw(7, 2, "Usuário encontrado: %s (%s), %s",
+            found_contact->name,
+            found_contact->address,
+            found_contact->phone);
+      } else {
+        mvprintw(7, 2, "Usuário %s não encontrado.", name);
+      }
 
-        ui_clear_fields(form, fields);
-        wrefresh(win);
-        break;
+      ui_clear_fields(form, fields);
+      refresh();
+      break;
 
       default:
         form_driver(form, ch);
@@ -86,6 +89,6 @@ void ui_window_search_helper(WINDOW *win, HashTable *hs)
 
   curs_set(0);
 
-  ui_clean_and_free_forms(win, form, fields, num_of_fields-1);
+  ui_clean_and_free_forms(win, form, fields, num_of_fields);
   refresh();
 }

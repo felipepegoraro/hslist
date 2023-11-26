@@ -8,9 +8,11 @@
 #endif
 
 FILE *io_open_file(const char *filename);
+bool io_if_error(FILE *file);
 void io_free_file(FILE *file);
 void io_read_from_csv(FILE *file, Contact *to, size_t max_contacts, int *count);
 void io_write_to_csv(FILE *file, const HashTable *from);
 void io_clean_file(FILE *file);
+bool io_file_is_empty(FILE *filename);
 
 #endif // !FILE_IO

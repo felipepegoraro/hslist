@@ -8,6 +8,7 @@ void ui_window_remove(HashTable *hs)
 {
   ui_clear_and_refresh();
 
+  // werase(current_window);
   WINDOW *removerwin = newwin(0, 0, 0, 0);
   current_window = removerwin;
   box(removerwin, 0, 0);
@@ -17,6 +18,7 @@ void ui_window_remove(HashTable *hs)
   curs_set(0);
 
   wrefresh(removerwin);
+  delwin(removerwin);
   ui_start(hs);
 }
 
@@ -45,7 +47,7 @@ void ui_window_remove_helper(WINDOW *win, HashTable *hs)
     switch (ch)
     {
       case KEY_F(2):
-        ui_clean_and_free_forms(win, form, fields, num_of_fields-1);
+        ui_clean_and_free_forms(win, form, fields, num_of_fields);
         return;
 
       case 10:
@@ -63,7 +65,7 @@ void ui_window_remove_helper(WINDOW *win, HashTable *hs)
           break;
         }
 
-        mvprintw(7, 2, hs_delete(hs, strdup(name))
+        mvprintw(7, 2, hs_delete(hs, name)
           ? "Contato Removido.      "
           : "Contato nao encontrado!");
 
@@ -88,6 +90,6 @@ void ui_window_remove_helper(WINDOW *win, HashTable *hs)
     }
   }
 
-  ui_clean_and_free_forms(win, form, fields, num_of_fields-1);
+  ui_clean_and_free_forms(win, form, fields, num_of_fields);
 }
 

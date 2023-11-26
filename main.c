@@ -1,6 +1,5 @@
 #include "./src/file_io.h"
 #include "./src/UI.h"
-#include "./src/hash_table.h"
 #include <stdio.h>
 #include <stdlib.h>
 #include <signal.h>
@@ -14,6 +13,7 @@ void deallocate_everything(FILE *file, HashTable *hs)
   io_write_to_csv(file, hs);
   io_free_file(file);
   hs_free(hs);
+  printf("list->size %zu\n", hs->length);
 }
 
 void handle_sigint() 
@@ -29,10 +29,10 @@ int main(int argc, char*argv[])
   size_t max_list_size = MAX_HS_SIZE;
   if (argc > 1) max_list_size = atoi(argv[1]);
 
-  contact_list = io_open_file(CONTACT_LIST_FILENAME);
-
   signal(SIGINT, handle_sigint);
   hs = hs_create(sizeof(struct contact), max_list_size);
+
+  contact_list = io_open_file(CONTACT_LIST_FILENAME);
 
   int count = 0;
   Contact cts[MAX_HS_SIZE];
@@ -42,7 +42,8 @@ int main(int argc, char*argv[])
     hs_insert(hs, (char*)cts[i].name, (Contact*)&cts[i]);
 
   ui_start(hs);
-  printf("Ok\n");
+
+  io_write_to_csv(contact_list, hs);
 
   deallocate_everything(contact_list, hs);
   printf("desalocou memória [1]\n");

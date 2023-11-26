@@ -4,13 +4,18 @@
 
 #define MAX_LINE_SIZE (MAX_NAME_SIZE + MAX_ADDRESS_SIZE + MAX_PHONE_SIZE + 4)
 
-void io_if_error(FILE *file)
+bool io_if_error(FILE *file)
 {
+  bool ret = false;
+
   if (file == NULL){
     char msg[100];
     sprintf(msg, "nao foi possivel ler/abrir arquivo %s", CONTACT_LIST_FILENAME);
     perror(msg);
+    ret = true;
   }
+
+  return ret;
 }
 
 FILE *io_open_file(const char *filename)
@@ -31,8 +36,9 @@ bool io_file_is_empty(FILE *filename)
 
 void io_free_file(FILE *file)
 {
-  if (file != NULL)
+  if (file != NULL){
     fclose(file);
+  }
 }
 
 void io_read_from_csv(FILE *file, Contact *to, size_t max_contacts, int *count)
@@ -49,14 +55,14 @@ void io_read_from_csv(FILE *file, Contact *to, size_t max_contacts, int *count)
     char *token = strtok(line, ";");
     if (token == NULL) continue;
 
-    to[contact_count].name = strdup(token);
+    strcpy(to[contact_count].name, token);
 
     token = strtok(NULL, ";");
     if (token == NULL){
         free((void *)to[contact_count].name);
         continue;
     }
-    to[contact_count].address = strdup(token);
+    strcpy(to[contact_count].address, token);
 
     token = strtok(NULL, ";");
     if (token == NULL) {
@@ -64,12 +70,20 @@ void io_read_from_csv(FILE *file, Contact *to, size_t max_contacts, int *count)
         free((void *)to[contact_count].address);
         continue;
     }
-    to[contact_count].phone = strdup(token);
+    strcpy(to[contact_count].phone, token);
 
     contact_count++;
     *count = *count + 1;
   }
-}
+
+  if (io_if_error(file)){
+    for (size_t i = 0; i < contact_count; i++){
+      free((void *)to[i].name);
+      free((void *)to[i].address);
+      free((void *)to[i].phone);
+    }
+    *count = 0;
+  }}
 
 void io_write_to_csv(FILE *file, const HashTable *from)
 {
@@ -89,10 +103,15 @@ void io_write_to_csv(FILE *file, const HashTable *from)
 }
 
 
-void io_clean_file(FILE *file)
-{
-  if (file != NULL){
-    fclose(file);
-    file = freopen(CONTACT_LIST_FILENAME, "w", file);
+void io_clean_file(FILE *file) {
+  if (file != NULL) {
+    if (fclose(file) != 0) {
+      perror("Erro ao fechar o arquivo");
+      exit(EXIT_FAILURE);
+    }
+    file = fopen(CONTACT_LIST_FILENAME, "w");
+    if(io_if_error(file)){
+      mvprintw(10, 2, "erro ao abrir arquivo");
+    }
   }
 }

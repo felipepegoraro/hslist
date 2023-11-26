@@ -10,7 +10,7 @@ endif
 all: main
 
 main: $(SRC)
-	$(CC) $(CFLAGS) $(SRC) $(XFLAGS) -o main
+	$(CC) $(CFLAGS) $(SRC) $(XFLAGS) -g -o main
 
 clean:
 	rm -f main

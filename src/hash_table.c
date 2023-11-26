@@ -8,10 +8,27 @@
 HashTable *hs_create(size_t value_size, size_t max_size)
 {
   HashTable *hs  = (HashTable *)malloc(sizeof(HashTable));
+
+  if (!hs){
+    fprintf(stderr, "erro: nao foi possivel alocar memoria para a HashTable.\n");
+    exit(EXIT_FAILURE);
+  }
+
   hs->size       = max_size;
   hs->length     = 0;
   hs->buckets    = (Entry **)calloc(max_size, sizeof(Entry *));
+
+  if (!hs->buckets){
+    fprintf(stderr, "erro: nao foi possivel alocar memória para os buckets.\n");
+    free(hs);
+    exit(EXIT_FAILURE);
+  } 
+
   hs->items_size.value_s = value_size;
+
+  for (size_t i = 0; i < max_size; ++i)
+    hs->buckets[i] = NULL;
+  
   return hs;
 }
 
@@ -22,6 +39,11 @@ static void hs_free_item(Entry *en){
 }
 
 void hs_free(HashTable *hs){
+  if (!hs) {
+    fprintf(stderr, "Error: Attempting to free a NULL HashTable.\n");
+    return;
+  }
+
   for (size_t i = 0; i < hs->size; ++i) {
     Entry *current = hs->buckets[i];
     while (current != NULL)
@@ -29,6 +51,7 @@ void hs_free(HashTable *hs){
       Entry *aux = current;
       current = current->next;
       hs_free_item(aux);
+      hs->length--;
     }
   }
   free(hs->buckets);

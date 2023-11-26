@@ -16,11 +16,10 @@ Contact_Record create_contact_record(const int id, const Contact *ct)
 
 void print_contact(Contact *contact, WINDOW *listWindow, int idx)
 {
-  const char *name = contact->name;
-  const char *address = contact->address;
-  const char *phone = contact->phone;
-
-  mvwprintw(listWindow, 6+idx, 2, "%s (%s), %s", name, address, phone);
+  mvwprintw(listWindow, 6+idx, 2, "%s (%s), %s",
+            contact->name,
+            contact->address,
+            contact->phone);
 }
 
 time_t get_current_time(void)

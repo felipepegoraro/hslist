@@ -10,9 +10,9 @@
 #include <time.h>
 
 typedef struct contact {
-  const char *name;
-  const char *address;
-  const char *phone;
+  char name[MAX_NAME_SIZE];
+  char address[MAX_ADDRESS_SIZE];
+  char phone[MAX_PHONE_SIZE];
 } Contact;
 
 typedef struct contact_record {

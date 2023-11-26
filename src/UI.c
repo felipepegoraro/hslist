@@ -42,14 +42,16 @@ void ui_start(HashTable *hs)
     // obs: C-c é capturado no main.
     case -1: 
       printf("\nPrograma finalizado com sucesso.\n");
+      delwin(current_window);
       endwin();
       return;
 
     default: break;
   }
 
-  wrefresh(current_window);
-  wgetch(current_window);
+  refresh();
+  // wgetch(current_window);
+  delwin(current_window);
   endwin();
 }
 
@@ -113,7 +115,7 @@ int ui_menu_select(void)
             case 3:  return LIST_WIN;
           }
 
-      wrefresh(main_window);
+      refresh();
     }
   }
 }
@@ -175,11 +177,11 @@ char *trim_whitespace(char *str)
 void ui_clean_and_free_forms(WINDOW *win, FORM *form, FIELD *fields[], size_t num_of_field)
 {
   unpost_form(form);
-  free_form(form);
 
-  for (size_t i=0; i<num_of_field; ++i)
+  for (size_t i=0; i < num_of_field; ++i)
     free_field(fields[i]);
 
+  free_form(form);
   delwin(win);
   refresh();
 

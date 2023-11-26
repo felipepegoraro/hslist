@@ -6,6 +6,7 @@
 #include <string.h>
 #include "../types.h"
 #include <stdlib.h>
+#include <unistd.h>
 
 void ui_window_add(HashTable *hs)
 {
@@ -19,7 +20,8 @@ void ui_window_add(HashTable *hs)
   ui_window_add_helper(adicionarWin, hs);
   curs_set(0);
 
-  wrefresh(adicionarWin);
+  refresh();
+  delwin(adicionarWin);
   ui_start(hs);
 }
 
@@ -29,7 +31,7 @@ void ui_window_add_helper(WINDOW *win, HashTable *hs)
   FIELD *fields[num_of_fields];
   const char *fields_name[] = {
     "Nome: ",
-    "Endereço: ",
+    "Endereco: ",
     "Telefone: "
   };
 
@@ -69,7 +71,7 @@ void ui_window_add_helper(WINDOW *win, HashTable *hs)
     switch (ch)
     {
     case KEY_F(2):
-        ui_clean_and_free_forms(win, form, fields, num_of_fields-1);
+        ui_clean_and_free_forms(win, form, fields, num_of_fields);
         return;
 
     case 10:
@@ -89,11 +91,21 @@ void ui_window_add_helper(WINDOW *win, HashTable *hs)
           break;
         }
 
-        Contact new_contact = {
-          .name = strdup(nome),
-          .address = strdup(endereco),
-          .phone = strdup(telefone),
-        };
+        if (
+          strlen(nome) > MAX_NAME_SIZE ||
+          strlen(endereco) > MAX_ADDRESS_SIZE ||
+          strlen(telefone) > MAX_PHONE_SIZE
+        ){
+          ui_clear_fields(form, fields);
+          mvprintw(2, 21, "[Entrada muito longa!]");
+          move(5, start_cursor);
+          refresh();
+        }
+
+        Contact new_contact;
+        strcpy(new_contact.name, nome);
+        strcpy(new_contact.address, endereco);
+        strcpy(new_contact.phone, telefone);
 
         hs_insert(hs, (char*)new_contact.name, &new_contact);
 
@@ -122,6 +134,5 @@ void ui_window_add_helper(WINDOW *win, HashTable *hs)
     }
   }
 
-  ui_clean_and_free_forms(win, form, fields, num_of_fields-1);
+  ui_clean_and_free_forms(win, form, fields, num_of_fields);
 }
-

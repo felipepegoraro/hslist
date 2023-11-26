@@ -14,7 +14,8 @@ void ui_window_list(HashTable *hs)
   wmove(listWindow, 5, 2);
   hs_map(hs, print_contact, listWindow);
   mvwprintw(listWindow, 5+2+hs->length, 2, "pressione qualquer tecla para voltar...");
-  wrefresh(listWindow);
+  refresh();
   wgetch(listWindow);
+  delwin(listWindow);
   ui_start(hs);
 }
